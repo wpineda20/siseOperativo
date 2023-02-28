@@ -17,42 +17,20 @@ class UserSeeder extends Seeder
     public function run()
     {
         $roleAdmin = Role::findOrFail(1);
-        $roleUser = Role::findOrFail(2);
+        $roleEnlace = Role::findOrFail(2);
+        $roleAuditor = Role::findOrFail(3);
 
         $admin = User::create([
             'id' => 1,
-            'name' => 'Leonel',
-            'last_name' => 'Lopez',
-            'dui' => '12345678-1',
-            'email' => 'leonellopez647@gmail.com',
-            'password' => Hash::make('Leonel23'),
-            'name' => 'Leonel',
+            'user_name' => 'wpineda',
+            'name' => 'William Pineda',
+            'job_title' => 'Técnico',
+            'phone' => '0000-0000',
+            'organizational_units_id' => 2,
+            'email' => 'wpineda@cultura.gob.sv',
+            'password' => Hash::make('12345678'),
             'email_verified_at' => now(),
         ]);
         $admin->assignRole($roleAdmin);
-
-        $user = User::create([
-            'id' => 2,
-            'name' => 'Leonel',
-            'last_name' => 'Lopez',
-            'dui' => '12345678-2',
-            'email' => 'lopezleonel191@gmail.com',
-            'password' => Hash::make('Leonel23'),
-            'name' => 'Leonel',
-            'email_verified_at' => now(),
-        ]);
-        $user->assignRole($roleUser);
-
-        $user = User::create([
-            'id' => 3,
-            'name' => 'admin',
-            'last_name' => 'admin',
-            'dui' => '02475605-7',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('12345678'),
-            'name' => 'William',
-            'email_verified_at' => now(),
-        ]);
-        $user->assignRole($roleAdmin);
     }
 }

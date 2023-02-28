@@ -16,9 +16,18 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(10)->create();
         $this->call([
             RoleSeeder::class,
-            DepartmentSeeder::class,
-            MunicipalitiesSeeder::class,
+            TrakingStatusSeeder::class,
+            InstitutionSeeder::class,
+            DirectionSeeder::class,
+            OrganizationalUnitSeeder::class,
+            PeriodSeeder::class,
+            UnitSeeder::class,
+            IndicatorSeeder::class,
+            MonthSeeder::class,
+            YearSeeder::class,
             UserSeeder::class,
+            MonthlyClosingSeeder::class,
+            CronClosingSeeder::class,
         ]);
     }
 }

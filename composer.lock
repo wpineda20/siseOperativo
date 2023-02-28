@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "05db4ab5ed4f2f647f39b63c3dbcae15",
+    "content-hash": "1b71cb80d9f18747a1cd65678796bd66",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2178,6 +2178,50 @@
                 "source": "https://github.com/leolopezMC/backup/tree/1.1.1"
             },
             "time": "2022-04-16T23:36:56+00:00"
+        },
+        {
+            "name": "leolopez/crudgeneratormc",
+            "version": "1.0.0-rc14",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lopezvleo/crudgeneratormc.git",
+                "reference": "0a35a24a06b646f607a9bc67d79fe3bd843cdb8e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lopezvleo/crudgeneratormc/zipball/0a35a24a06b646f607a9bc67d79fe3bd843cdb8e",
+                "reference": "0a35a24a06b646f607a9bc67d79fe3bd843cdb8e",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "\\Leolopez\\Crudgeneratormc\\CrudgeneratorServiceProvider"
+                    ],
+                    "aliases": {
+                        "Crudgeneratormc": "Leolopez\\Crudgeneratormc\\Facades\\Crudgenerator"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Leolopez\\Crudgeneratormc\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Leonel Lopez",
+                    "email": "lalopez@cultura.gob.sv"
+                }
+            ],
+            "description": "Generates crud for Laravel with MC UI",
+            "support": {
+                "issues": "https://github.com/lopezvleo/crudgeneratormc/issues",
+                "source": "https://github.com/lopezvleo/crudgeneratormc/tree/1.0.0-rc14"
+            },
+            "time": "2022-07-24T22:33:01+00:00"
         },
         {
             "name": "leolopez/encrypt",
@@ -9960,7 +10004,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "leolopez/crudgeneratormc": 5
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

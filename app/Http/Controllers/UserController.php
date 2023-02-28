@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\OrganizationalUnit;
 use DB;
 use Hash;
 use Spatie\Permission\Models\Role;
@@ -22,9 +23,11 @@ class UserController extends Controller
         $limit = $request->take - $skip; // the limit
 
         $users = User::skip($skip)->take($limit)
-        ->get();
+            ->select('*', 'users.id as id')
+            ->join('organizational_units as ou', 'users.organizational_units_id', '=', 'ou.id')
+            ->get();
 
-        $users->makeVisible(["password"]);
+        $users->makeVisible(['password']);
 
         foreach ($users as $user) {
             $user->rol = $user->getRoleNames()[0];
@@ -35,10 +38,9 @@ class UserController extends Controller
         $total = User::count();
 
         return response()->json([
-            "status" => "success",
-            "message"=>"Registros obtenidos correctamente.",
-            "users" => $users,
-            "total" => $total,
+            'message' => 'success',
+            'users' => $users,
+            'total' => $total,
         ]);
     }
 
@@ -50,34 +52,41 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $user = count(User::where(["email"=>$request->email])->get());
+        $verifyEmail = User::where(['email' => $request->email])->count();
 
-        if ($user > 0) {
-            return response()->json([
-                "status"=>"fail",
-                "message"=>"Este email ya existe."
-            ]);
+        if ($verifyEmail > 0) {
+            return response()->json(['message' => 'Este correo ya existe.']);
         }
+
+        // $verifyDui = User::where(['dui'=>$request->dui])->count();
+
+        // if ($verifyDui > 0) {
+        //     return response()->json(['message' => 'Este dui ya existe.']);
+        // }
+
+        $ou = OrganizationalUnit::where('ou_name', $request->ou_name)->first();
 
         $password = Hash::make($request->password);
 
-        $user = new User();
+        $user = new User;
         $user->name = $request->name;
-        $user->last_name = $request->last_name;
-        $user->dui = $request->dui;
+        $user->user_name = $request->user_name;
         $user->email = $request->email;
-        $user->email_verified_at = now();
+        $user->job_title = $request->job_title;
+        $user->organizational_units_id = $ou->id;
+        $user->phone = $request->phone;
         $user->password = $password;
+        $user->email_verified_at = now();
 
         $user->save();
 
-        $role = Role::where("name", $request->rol)->first();
+        // Getting the model with the id
+        $user = User::where(['email' => $request->email])->first();
+
+        $role = Role::where('name', $request->rol)->first();
         $user->assignRole($role);
 
-        return response()->json([
-            "status"=>"success",
-            "message"=>"Registro creado correctamente."
-        ]);
+        return response()->json(['message' => 'success']);
     }
 
     /**
@@ -100,31 +109,32 @@ class UserController extends Controller
      */
     public function update(Request $request)
     {
+        // dd($request);
         $id = Encrypt::decryptValue($request->id);
         $user = User::find($id);
 
         $password = Hash::make($request->password);
 
-        $data = [
-            "name" => $request->name,
-            "lastName" => $request->lastName,
-            "email" => $request->email,
-            "password" => $password,
-        ];
+        $ou = OrganizationalUnit::where('ou_name', $request->ou_name)->first();
 
         if (isset($request->rol)) {
-            $oldRole = DB::table("model_has_roles")->where("model_id", $user->id)->delete();
+            $oldRole = DB::table('model_has_roles')->where('model_id', $user->id)->delete();
 
-            $role = Role::where("name", $request->rol)->first();
+            $role = Role::where('name', $request->rol)->first();
             $user->assignRole($role);
         }
 
-        $user->update($data);
+        $user->name = $request->name;
+        $user->user_name = $request->user_name;
+        $user->job_title = $request->job_title;
+        $user->organizational_units_id = $ou->id;
+        $user->phone = $request->phone;
+        $user->email = $request->email;
+        $user->password = $password;
 
-        return response()->json([
-            "status"=>"success",
-            "message"=>"Registro creado correctamente."
-        ]);
+        $user->save();
+
+        return response()->json(["message" => "success"]);
     }
 
     /**
@@ -133,13 +143,12 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $user->delete();
-        return response()->json([
-            "status"=>"success",
-            "message"=>"Registro creado correctamente."
-        ]);
+        $id = Encrypt::decryptValue($id);
+
+        User::where('id', $id)->delete();
+        return response()->json(["message" => "success"]);
     }
 
     /**
@@ -153,9 +162,9 @@ class UserController extends Controller
         $user = User::find(auth()->user()->id);
 
         return response()->json([
-            "status"=>"success",
-            "message"=>"Registro creado correctamente.",
-            "user"=> $user
+            "status" => "success",
+            "message" => "Registro creado correctamente.",
+            "user" => $user
         ]);
     }
 }

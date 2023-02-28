@@ -36,72 +36,103 @@
                 </li>
 
                 @auth
-                    <!-- Home -->
-                    <li class="text-center pb-1">
-                        <a href="{{ url('/home') }}" class="text-center">
-                            <i class="material-icons md-18 mx-auto">home</i>
-                        </a>
-                        <a href="{{ url('/home') }}">
-                            <p class="link mx-auto">Inicio</p>
-                        </a>
-                    </li>
-                    <!-- Home -->
+                <!-- Home -->
+                <li class="text-center pb-1">
+                    <a href="https://sise.cultura.gob.sv/" class="text-center">
+                        <i class="material-icons md-18 mx-auto">home</i>
+                    </a>
+                    <a href="https://sise.cultura.gob.sv/">
+                        <p class="link mx-auto">Inicio</p>
+                    </a>
+                </li>
+                <!-- Home -->
 
-                    <!-- Settings -->
-                    <!-- Administrative routes -->
-                    @if (auth()->user()->hasRole('Administrador') == 'Administrador')
-                        <li>
-                            <div class="icon-link pb-1">
-                                <a href="#" class="arrow text-center">
-                                    <i class="material-icons md-18 mx-auto">settings</i>
-                                </a>
-                                <p class="link">Administración</p>
-                            </div>
-                            <ul class="sub-menu">
-                                <li><a href="{{ url('/departments ') }}">Departamentos</a></li>
-                                <li><a href="{{ url('/municipalities') }}">Municipios</a></li>
-                                <li><a href="{{ url('/users') }}">Usuarios</a></li>
-                            </ul>
-                        </li>
-                    @endif
-                    <!-- End Administrative routes -->
-                    <!-- Settings -->
+                <!-- Operativo -->
+                @if (auth()->user()->hasRole(['Administrador', 'Enlace']))
+                <li class="text-center">
+                    <div class="icon-link pb-1">
+                        <a href="#" class="arrow text-center">
+                            <i class="material-icons md-18 mx-auto">engineering</i>
+                        </a>
+                        <p class="link" style="margin-left:14px">Operativo</p>
+                    </div>
+                    <ul class="sub-menu">
+                        @role('Administrador')
+                        <li><a href="{{ url('/objectives') }}">Objetivos</a></li>
+                        <li><a href="{{ url('/axes') }}">Ejes</a></li>
+                        <li><a href="{{ url('/results') }}">Resultados</a></li>
+                        <li><a href="{{ url('/actions') }}">Acciones</a></li>
+                        @endrole
+                        @hasanyrole('Administrador|Enlace')
+                        <li><a href="{{ url('/trackings') }}">Seguimientos</a></li>
+                        @endhasanyrole
+                    </ul>
+                </li>
+                @endif
+                <!-- Operativo -->
 
-                    <!-- Logout -->
-                    <li class="text-center pb-1">
-                        <a href="{{ route('register') }}" class="text-center"
-                            onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                            <i class="material-icons md-18 mx-auto">logout</i>
+                <!-- Settings -->
+                @if (auth()->user()->hasRole(['Administrador']))
+                <li>
+                    <div class="icon-link pb-1">
+                        <a href="#" class="arrow text-center">
+                            <i class="material-icons md-18 mx-auto">settings</i>
                         </a>
-                        <a href="{{ route('logout') }}"
-                            onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                            <p class="link mx-auto">Cerrar sesión</p>
-                        </a>
-                    </li>
-                    <!-- Logout -->
+                        <p class="link">Administración</p>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a href="{{ url('/months') }}">Meses</a></li>
+                        <li><a href="{{ url('/periods') }}">Períodos</a></li>
+                        <li><a href="{{ url('/years') }}">Años</a></li>
+                        <li><a href="{{ url('/institutions') }}">Instituciones</a></li>
+                        <li><a href="{{ url('/directions') }}">Direcciones</a></li>
+                        <li><a href="{{ url('/organizationalUnits') }}">Unidades organizativas</a></li>
+                        <li><a href="{{ url('/units') }}">Unidades de medida</a></li>
+                        <li><a href="{{ url('/trackingStatus') }}">Estados de seguimiento</a></li>
+                        <li><a href="{{ url('/indicators') }}">Indicadores</a></li>
+                        <li><a href="{{ url('/cronClosing') }}">Cierre mensual</a></li>
+                        <li><a href="{{ url('/monthlyClosings') }}">Bitácora de cierres mensuales</a></li>
+                        <li><a href="{{ url('/users') }}">Usuarios</a></li>
+                    </ul>
+                </li>
+                @endif
+                <!-- Settings -->
+
+                <!-- Logout -->
+                <li class="text-center pb-1">
+                    <a href="{{ route('register') }}" class="text-center"
+                        onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                        <i class="material-icons md-18 mx-auto">logout</i>
+                    </a>
+                    <a href="{{ route('logout') }}"
+                        onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                        <p class="link mx-auto">Cerrar sesión</p>
+                    </a>
+                </li>
+                <!-- Logout -->
                 @endauth
 
                 <!-- Login/Logout -->
                 @guest
-                    <li class="text-center pb-1">
-                        <a href="{{ url('/login') }}" class="text-center">
-                            <i class="material-icons md-18 mx-auto">login</i>
-                        </a>
-                        <a href="{{ url('/login') }}">
-                            <p class="link mx-auto">Iniciar sesión</p>
-                        </a>
-                    </li>
+                <li class="text-center pb-1">
+                    <a href="{{ url('/login') }}" class="text-center">
+                        <i class="material-icons md-18 mx-auto">login</i>
+                    </a>
+                    <a href="{{ url('/login') }}">
+                        <p class="link mx-auto">Iniciar sesión</p>
+                    </a>
+                </li>
 
-                    @if (Route::has('register'))
-                        <li class="text-center pb-1">
-                            <a href="{{ url('/register') }}" class="text-center">
-                                <i class="material-icons md-18 mx-auto">person_add_alt_1</i>
-                            </a>
-                            <a href="{{ url('/register') }}">
-                                <p class="link mx-auto">Registrarse</p>
-                            </a>
-                        </li>
-                    @endif
+                @if (Route::has('register'))
+                <li class="text-center pb-1">
+                    <a href="{{ url('/register') }}" class="text-center">
+                        <i class="material-icons md-18 mx-auto">person_add_alt_1</i>
+                    </a>
+                    <a href="{{ url('/register') }}">
+                        <p class="link mx-auto">Registrarse</p>
+                    </a>
+                </li>
+                @endif
                 @endguest
                 <!-- Login/Logout -->
             </ul>
@@ -115,18 +146,18 @@
                     <div class="col-6 col-sm-12 col-md-12">
                         <div class="row p-0 m-0">
                             @auth
-                                <div class="col-6 col-md-1 menu my-auto">
-                                    <div class="col-3 col-sm-3 menu my-auto">
-                                        <i class="material-icons md-36 mx-auto menu color-secondary my-auto">menu</i>
-                                    </div>
+                            <div class="col-6 col-md-1 menu my-auto">
+                                <div class="col-3 col-sm-3 menu my-auto">
+                                    <i class="material-icons md-36 mx-auto menu color-secondary my-auto">menu</i>
                                 </div>
+                            </div>
                             @endauth
                             @guest
-                                <div class="col-6 col-md-1 menu pt-0 mt-0 d-block d-md-none d-lg-none d-xl-none">
-                                    <div class="col-3 col-sm-3 menu">
-                                        <i class="material-icons md-36 mx-auto menu color-secondary">menu</i>
-                                    </div>
+                            <div class="col-6 col-md-1 menu pt-0 mt-0 d-block d-md-none d-lg-none d-xl-none">
+                                <div class="col-3 col-sm-3 menu">
+                                    <i class="material-icons md-36 mx-auto menu color-secondary">menu</i>
                                 </div>
+                            </div>
                             @endguest
 
                             <!-- Institution Name -->
@@ -144,51 +175,50 @@
                             <div class=" col-sm-4 col-md-6 d-none d-md-block d-lg-block d-xl-block">
                                 <div class="col-4 col-sm-12 mb-2">
                                     <a class="navbar-brand" href="{{ url('/') }}">
-                                        <img class="" src="/logos/Logo_GOES_horizontal_D.svg"
-                                            style="max-width: 60%" />
+                                        <img class="" src="/logos/Logo_GOES_horizontal_D.svg" style="max-width: 60%" />
                                     </a>
                                 </div>
                             </div>
                             <!-- Logo Brand -->
 
                             @guest
-                                <div class="col-6 col-md-6 text-right d-none d-md-block d-lg-block d-xl-block">
-                                    <div class="row mt-2 pt-1">
-                                        <div class=" col-md-12 text-end">
-                                            <a href="{{ url('/login') }}" class="btn btn-normal-nav shadow-none">Iniciar
-                                                sesión</a>
-                                            <a href="{{ route('register') }}"
-                                                class="btn btn-normal-secondary-nav shadow-none">Registrarme</a>
-                                        </div>
-
+                            <div class="col-6 col-md-6 text-right d-none d-md-block d-lg-block d-xl-block">
+                                <div class="row mt-2 pt-1">
+                                    <div class=" col-md-12 text-end">
+                                        <a href="{{ url('/login') }}" class="btn btn-normal-nav shadow-none">Iniciar
+                                            sesión</a>
+                                        <a href="{{ route('register') }}"
+                                            class="btn btn-normal-secondary-nav shadow-none">Registrarme</a>
                                     </div>
+
                                 </div>
+                            </div>
                             @endguest
 
                             @auth
-                                <!-- Logout/UserName -->
-                                <div class="col-6 col-md-4 col-sm-4 d-none d-md-block d-lg-block d-xl-block">
-                                    <div class="row d-none d-md-block">
-                                        <div class="col-12 col-sm-12 col-md-12 pb-0 pt-2 mt-1 text-end">
-                                            <span class="color-secondary" style="font-size: 16px;">
-                                                {{ auth()->user()->name }}
-                                            </span>
-                                            <span class="color-primary"><i class="material-icons">person</i></span>
-                                        </div>
+                            <!-- Logout/UserName -->
+                            <div class="col-6 col-md-4 col-sm-4 d-none d-md-block d-lg-block d-xl-block">
+                                <div class="row d-none d-md-block">
+                                    <div class="col-12 col-sm-12 col-md-12 pb-0 pt-2 mt-1 text-end">
+                                        <span class="color-secondary" style="font-size: 16px;">
+                                            {{ auth()->user()->name }}
+                                        </span>
+                                        <span class="color-primary"><i class="material-icons">person</i></span>
+                                    </div>
 
-                                        <div class="col-12 col-sm-12 col-md-12 pt-0 pb-0 text-end">
-                                            <a href="{{ route('logout') }}" class="btn-logout"
-                                                onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                                                {{ __('Logout') }}
-                                            </a>
-                                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                                class="d-none">
-                                                @csrf
-                                            </form>
-                                        </div>
+                                    <div class="col-12 col-sm-12 col-md-12 pt-0 pb-0 text-end">
+                                        <a href="{{ route('logout') }}" class="btn-logout"
+                                            onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                                            {{ __('Logout') }}
+                                        </a>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                            class="d-none">
+                                            @csrf
+                                        </form>
                                     </div>
                                 </div>
-                                <!-- Logout/UserName -->
+                            </div>
+                            <!-- Logout/UserName -->
                             @endauth
                         </div>
                     </div>
