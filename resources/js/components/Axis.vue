@@ -11,15 +11,28 @@
       @show-alert="updateAlert($event)"
       class="mb-2"
     />
+    <div class="container" v-if="actualUser.role == 'Administrador'">
+      <v-row>
+        <v-col align="start" cols="12" md="6" sm="12">
+          <v-btn href="/objectives" class="btn-normal-close" rounded>
+            Volver
+          </v-btn>
+        </v-col>
+        <v-col align="end" cols="12" md="6" sm="12">
+          <v-btn href="/results" class="btn-normal" rounded> Siguiente </v-btn>
+        </v-col>
+      </v-row>
+    </div>
     <v-card class="p-3">
       <v-container>
         <v-toolbar flat>
-          <h2 class="mt-4">Años</h2>
+          <h2 class="mt-4">Ejes</h2>
           <v-spacer></v-spacer>
           <v-row>
             <v-col align="end">
               <v-btn
                 rounded
+                :disabled="loading != false"
                 @click="addRecord()"
                 class="mb-0 mt-3 btn-normal no-uppercase"
                 title="Agregar"
@@ -79,36 +92,59 @@
           <v-container>
             <!-- Form -->
             <v-row class="pt-3">
-              <!-- year_name -->
-              <v-col cols="12" sm="12" md="6">
-                <base-input
-                  label="Año"
-                  v-model="$v.editedItem.year_name.$model"
-                  :validation="$v.editedItem.year_name"
+              <!-- axis_name -->
+              <v-col cols="12" sm="12" md="12">
+                <base-text-area
+                  label="Eje"
+                  v-model="$v.editedItem.axis_name.$model"
+                  :validation="$v.editedItem.axis_name"
                   validationTextType="none"
+                />
+              </v-col>
+              <!-- axis_name -->
+
+              <!-- objective_name -->
+              <v-col cols="12" sm="12" md="12">
+                <base-select-search
+                  label="Objetivo"
+                  v-model.trim="$v.editedItem.objective_name.$model"
+                  :items="objectives"
+                  item="objective_name"
+                  :validation="$v.editedItem.objective_name"
                   :validationsInput="{
                     required: true,
                     minLength: true,
                   }"
                 />
               </v-col>
-              <!-- year_name -->
+              <!-- objective_name -->
 
-              <!-- period_name -->
+              <!-- institution_name -->
               <v-col cols="12" sm="12" md="6">
                 <base-select-search
-                  label="Periodo"
-                  v-model.trim="$v.editedItem.period_name.$model"
-                  :items="periods"
-                  item="period_name"
-                  :validation="$v.editedItem.period_name"
+                  label="Institución"
+                  v-model.trim="$v.editedItem.institution_name.$model"
+                  :items="institutions"
+                  item="institution_name"
+                  :validation="$v.editedItem.institution_name"
                   :validationsInput="{
                     required: true,
                     minLength: true,
                   }"
                 />
               </v-col>
-              <!-- period_name -->
+              <!-- institution_name -->
+
+              <!-- user_name -->
+              <v-col cols="12" sm="12" md="6">
+                <base-input
+                  label="Usuario"
+                  v-model.trim="$v.editedItem.user_name.$model"
+                  :validation="$v.editedItem.user_name"
+                  :disabled="true"
+                />
+              </v-col>
+              <!-- user_name -->
             </v-row>
             <!-- Form -->
             <v-row>
@@ -166,8 +202,10 @@
 </template>
 
 <script>
-import yearApi from "../apis/yearApi";
-import periodApi from "../apis/periodApi";
+import axisApi from "../apis/axisApi";
+import objectiveApi from "../apis/objectiveApi";
+import institutionApi from "../apis/institutionApi";
+import userApi from "../apis/userApi";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 
 export default {
@@ -178,22 +216,27 @@ export default {
       dialog: false,
       dialogDelete: false,
       headers: [
-        { text: "AÑO", value: "year_name" },
+        { text: "EJE", value: "axis_name" },
+        { text: "OBJETIVO", value: "objective_name" },
         { text: "ACCIONES", value: "actions", sortable: false },
       ],
       records: [],
       recordsFiltered: [],
       editedIndex: -1,
-      title: "Year",
+      title: "Axis",
       totalItems: 0,
       options: {},
       editedItem: {
-        year_name: "",
-        period_name: "",
+        axis_name: "",
+        institution_name: "",
+        user_name: "",
+        objective_name: "",
       },
       defaultItem: {
-        year_name: "",
-        period_name: "",
+        axis_name: "",
+        institution_name: "",
+        user_name: "",
+        objective_name: "",
       },
       selectedTab: 0,
       loading: false,
@@ -203,7 +246,10 @@ export default {
       showAlert: false,
       redirectSessionFinished: false,
       alertTimeOut: 0,
-      periods: [],
+      institutions: [],
+      objectives: [],
+      users: [],
+      actualUser: {},
     };
   },
 
@@ -222,11 +268,23 @@ export default {
   // Validations
   validations: {
     editedItem: {
-      year_name: {
+      axis_name: {
         required,
         minLength: minLength(1),
       },
-      period_name: {
+      institution_name: {
+        required,
+        minLength: minLength(1),
+      },
+      objective_name: {
+        required,
+        minLength: minLength(1),
+      },
+      institution_name: {
+        required,
+        minLength: minLength(1),
+      },
+      user_name: {
         required,
         minLength: minLength(1),
       },
@@ -268,7 +326,13 @@ export default {
 
       let requests = [
         this.getDataFromApi(),
-        periodApi.get(null, {
+        objectiveApi.get(null, {
+          params: { itemsPerPage: -1 },
+        }),
+        institutionApi.get(null, {
+          params: { itemsPerPage: -1 },
+        }),
+        userApi.post("/actualUser", {
           params: { itemsPerPage: -1 },
         }),
       ];
@@ -283,7 +347,10 @@ export default {
       });
 
       if (responses) {
-        this.periods = responses[1].data.records;
+        console.log(responses);
+        this.objectives = responses[1].data.records;
+        this.institutions = responses[2].data.records;
+        this.actualUser = responses[3].data.user;
       }
 
       this.loading = false;
@@ -317,7 +384,7 @@ export default {
           this.editedItem
         );
 
-        const { data } = await yearApi
+        const { data } = await axisApi
           .put(`/${edited.id}`, edited)
           .catch((error) => {
             this.updateAlert(
@@ -337,7 +404,7 @@ export default {
         }
       } else {
         //Creating user
-        const { data } = await yearApi
+        const { data } = await axisApi
           .post(null, this.editedItem)
           .catch((error) => {
             this.updateAlert(true, "No fue posible crear el registro.", "fail");
@@ -378,7 +445,7 @@ export default {
     },
 
     async deleteItemConfirm() {
-      const { data } = await yearApi
+      const { data } = await axisApi
         .delete(null, {
           params: {
             selected: this.selected,
@@ -415,7 +482,7 @@ export default {
       //debounce
       clearTimeout(this.debounce);
       this.debounce = setTimeout(async () => {
-        const { data } = await yearApi
+        const { data } = await axisApi
           .get(null, {
             params: this.options,
           })
@@ -439,6 +506,7 @@ export default {
       this.editedIndex = -1;
       this.selectedTab = 0;
       this.editedItem = Object.assign({}, this.defaultItem);
+      this.editedItem.user_name = this.actualUser.user_name;
       this.$v.$reset();
     },
 

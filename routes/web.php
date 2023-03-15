@@ -20,6 +20,9 @@ use App\Http\Controllers\IndicatorsController;
 use App\Http\Controllers\MonthlyClosingController;
 use App\Http\Controllers\CronClosingController;
 
+use App\Http\Controllers\ObjectivesController;
+use App\Http\Controllers\AxesController;
+use App\Http\Controllers\ResultsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +69,16 @@ Route::group(['middleware' => ['auth', 'verified', 'log', 'throttle:web']], func
         Route::delete('/api/web/indicator', [IndicatorsController::class, 'destroy']);
         Route::resource('/api/web/monthlyClosing', MonthlyClosingController::class);
         Route::resource('/api/web/cronClosing', CronClosingController::class);
+
+        Route::post('/api/web/organizationalUnit/allOrganizationalUnits', [OrganizationalUnitsController::class, 'allOrganizationalUnits']);
+
+        //Operativo
+        Route::resource('/api/web/objective', ObjectivesController::class);
+        Route::delete('/api/web/objective', [ObjectivesController::class, 'destroy']);
+        Route::resource('/api/web/axis', AxesController::class);
+        Route::delete('/api/web/axis', [AxesController::class, 'destroy']);
+        Route::resource('/api/web/result', ResultsController::class);
+        Route::delete('/api/web/result', [ResultsController::class, 'destroy']);
 
         // Views
         Route::get('/users', function () {
@@ -116,17 +129,34 @@ Route::group(['middleware' => ['auth', 'verified', 'log', 'throttle:web']], func
             return view('monthly_closing.index');
         });
 
-        // Route::get('/departments', function () {
-        //     return view('department.index');
-        // });
+        // Operativo
+        Route::get('/objectives', function () {
+            return view('objective.index');
+        });
 
-        // Route::get('/municipalities', function () {
-        //     return view('municipality.index');
-        // });
+        Route::get('/axes', function () {
+            return view('axis.index');
+        });
 
+        Route::get('/results', function () {
+            return view('result.index');
+        });
+
+        Route::get('/actions', function () {
+            return view('action.index');
+        });
+
+        Route::get('/trackings', function () {
+            return view('tracking.index');
+        });
     });
 
-    Route::post('/api/web/organizationalUnit/allOrganizationalUnits', [OrganizationalUnitsController::class, 'allOrganizationalUnits']);
+    // Administrador | Auditor | Enlace
+    Route::group(['middleware' => ['has.role:Administrador,Auditor,Enlace']], function () {
+
+        Route::post('/api/web/user/actualUser', [UserController::class, 'actualUser']);
+        Route::get('/api/web/period/byYear/{year}', [PeriodsController::class, 'periodByYear']);
+    });
 
     //Reports
     Route::get('generate-pdf', [PDFController::class, 'generatePDF']);
@@ -136,5 +166,7 @@ Route::group(['middleware' => ['auth', 'verified', 'log', 'throttle:web']], func
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
+
+Auth::routes(['verify' => true, 'login' => true, 'reset' => true, 'register' => true]);
 
 Route::post('import', [ExcelController::class, 'import']);

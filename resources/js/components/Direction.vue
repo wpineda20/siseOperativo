@@ -1,45 +1,58 @@
 <template>
   <div data-app>
-    <alert-time-out 
-    :redirect="redirectSessionFinished" 
-    @redirect="updateTimeOut($event)" />
-    <alert 
-    :text="textAlert" 
-    :event="alertEvent" 
-    :show="showAlert" 
-    @show-alert="updateAlert($event)" class="mb-2" />
+    <alert-time-out
+      :redirect="redirectSessionFinished"
+      @redirect="updateTimeOut($event)"
+    />
+    <alert
+      :text="textAlert"
+      :event="alertEvent"
+      :show="showAlert"
+      @show-alert="updateAlert($event)"
+      class="mb-2"
+    />
     <v-card class="p-3">
-     <v-container>
-          <v-toolbar flat>
-            <h2 class="mt-4">Direcciones</h2>
-            <v-spacer></v-spacer>
-            <v-row>
-              <v-col align="end">
-                <v-btn
-                  rounded
-                  @click="addRecord()"
-                  class="mb-0 mt-3 btn-normal no-uppercase"
-                  title="Agregar"
-                >
-                  Agregar
-                </v-btn>
-              </v-col>
-              <v-col xs="6" sm="6" md="6" class="d-none d-md-block d-lg-block">
-                <v-text-field
-                  class="mt-3"
-                  outlined
-                  dense
-                  label="Buscar"
-                  type="text"
-                  v-model="options.search"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-          </v-toolbar>
-        </v-container>
-      <v-data-table v-model="selected" :single-select="false" show-select :search="options.search" :headers="headers"
-        :items="recordsFiltered" :options.sync="options" :loading="loading" item-key="id" sort-by="id"
-        :footer-props="{ 'items-per-page-options': [15, 30, 50, 100] }">
+      <v-container>
+        <v-toolbar flat>
+          <h2 class="mt-4">Direcciones</h2>
+          <v-spacer></v-spacer>
+          <v-row>
+            <v-col align="end">
+              <v-btn
+                rounded
+                @click="addRecord()"
+                class="mb-0 mt-3 btn-normal no-uppercase"
+                title="Agregar"
+              >
+                Agregar
+              </v-btn>
+            </v-col>
+            <v-col xs="6" sm="6" md="6" class="d-none d-md-block d-lg-block">
+              <v-text-field
+                class="mt-3"
+                outlined
+                dense
+                label="Buscar"
+                type="text"
+                v-model="options.search"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-toolbar>
+      </v-container>
+      <v-data-table
+        v-model="selected"
+        :single-select="false"
+        show-select
+        :search="options.search"
+        :headers="headers"
+        :items="recordsFiltered"
+        :options.sync="options"
+        :loading="loading"
+        item-key="id"
+        sort-by="id"
+        :footer-props="{ 'items-per-page-options': [15, 30, 50, 100] }"
+      >
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon small class="mr-2" @click="editItem(item)">
             mdi-pencil
@@ -66,38 +79,52 @@
           <v-container>
             <!-- Form -->
             <v-row class="pt-3">
-
               <!-- direction_name -->
               <v-col cols="12" sm="12" md="6">
-                <base-input label="Dirección" v-model="$v.editedItem.direction_name.$model"
-                  :validation="$v.editedItem.direction_name" validationTextType="none" :validationsInput="{
-                    required: true,
-                    minLength: true,
-                  }" />
-              </v-col>
-              <!-- direction_name -->
-
-
-              <!-- institution_name -->
-              <v-col cols="12" sm="12" md="6">
-                <base-select-search label="Institución" v-model.trim="$v.editedItem.institution_name.$model"
-                  :items="institutions" item="institution_name" :validation="$v.editedItem.institution_name"
+                <base-input
+                  label="Dirección"
+                  v-model="$v.editedItem.direction_name.$model"
+                  :validation="$v.editedItem.direction_name"
+                  validationTextType="none"
                   :validationsInput="{
                     required: true,
                     minLength: true,
-                  }" />
+                  }"
+                />
+              </v-col>
+              <!-- direction_name -->
+
+              <!-- institution_name -->
+              <v-col cols="12" sm="12" md="6">
+                <base-select-search
+                  label="Institución"
+                  v-model.trim="$v.editedItem.institution_name.$model"
+                  :items="institutions"
+                  item="institution_name"
+                  :validation="$v.editedItem.institution_name"
+                  :validationsInput="{
+                    required: true,
+                    minLength: true,
+                  }"
+                />
               </v-col>
               <!-- institution_name -->
-
-
             </v-row>
             <!-- Form -->
             <v-row>
               <v-col align="center">
-                <v-btn color="btn-normal no-uppercase mt-3" rounded @click="save">
+                <v-btn
+                  color="btn-normal no-uppercase mt-3"
+                  rounded
+                  @click="save"
+                >
                   Guardar
                 </v-btn>
-                <v-btn color="btn-normal-close no-uppercase mt-3" rounded @click="close">
+                <v-btn
+                  color="btn-normal-close no-uppercase mt-3"
+                  rounded
+                  @click="close"
+                >
                   Cancelar
                 </v-btn>
               </v-col>
@@ -117,9 +144,17 @@
           </h1>
           <v-row>
             <v-col align="center">
-              <v-btn color="btn-normal no-uppercase mt-3 mb-3 pr-5 pl-5 mx-auto" rounded
-                @click="deleteItemConfirm">Confirmar</v-btn>
-              <v-btn color="btn-normal-close no-uppercase mt-3 mb-3" rounded @click="closeDelete">
+              <v-btn
+                color="btn-normal no-uppercase mt-3 mb-3 pr-5 pl-5 mx-auto"
+                rounded
+                @click="deleteItemConfirm"
+                >Confirmar</v-btn
+              >
+              <v-btn
+                color="btn-normal-close no-uppercase mt-3 mb-3"
+                rounded
+                @click="closeDelete"
+              >
                 Cancelar
               </v-btn>
             </v-col>
@@ -132,7 +167,7 @@
 
 <script>
 import directionApi from "../apis/directionApi";
-import institutionApi from "../apis/institutionApi"
+import institutionApi from "../apis/institutionApi";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 
 export default {
@@ -143,7 +178,6 @@ export default {
       dialog: false,
       dialogDelete: false,
       headers: [
-
         { text: "DIRECCIÓN", value: "direction_name" },
         { text: "ACCIONES", value: "actions", sortable: false },
       ],
@@ -154,10 +188,12 @@ export default {
       totalItems: 0,
       options: {},
       editedItem: {
-        direction_name: "", institution_name: "",
+        direction_name: "",
+        institution_name: "",
       },
       defaultItem: {
-        direction_name: "", institution_name: "",
+        direction_name: "",
+        institution_name: "",
       },
       selectedTab: 0,
       loading: false,
@@ -168,7 +204,6 @@ export default {
       redirectSessionFinished: false,
       alertTimeOut: 0,
       institutions: [],
-
     };
   },
 
@@ -190,11 +225,11 @@ export default {
       direction_name: {
         required,
         minLength: minLength(1),
-      }, institution_name: {
+      },
+      institution_name: {
         required,
         minLength: minLength(1),
       },
-
     },
   },
 
@@ -241,12 +276,14 @@ export default {
       const responses = await Promise.all(requests).catch((error) => {
         this.updateAlert(true, "No fue posible obtener el registro.", "fail");
 
-        this.redirectSessionFinished = lib.verifySessionFinished(error.response.status, 419);
+        this.redirectSessionFinished = lib.verifySessionFinished(
+          error.response.status,
+          419
+        );
       });
 
       if (responses) {
         this.institutions = responses[1].data.records;
-
       }
 
       this.loading = false;
@@ -283,9 +320,16 @@ export default {
         const { data } = await directionApi
           .put(`/${edited.id}`, edited)
           .catch((error) => {
-            this.updateAlert(true, "No fue posible actualizar el registro.", "fail");
+            this.updateAlert(
+              true,
+              "No fue posible actualizar el registro.",
+              "fail"
+            );
 
-            this.redirectSessionFinished = lib.verifySessionFinished(error.response.status, 419);
+            this.redirectSessionFinished = lib.verifySessionFinished(
+              error.response.status,
+              419
+            );
           });
 
         if (data.success) {
@@ -298,7 +342,10 @@ export default {
           .catch((error) => {
             this.updateAlert(true, "No fue posible crear el registro.", "fail");
 
-            this.redirectSessionFinished = lib.verifySessionFinished(error.response.status, 419);
+            this.redirectSessionFinished = lib.verifySessionFinished(
+              error.response.status,
+              419
+            );
           });
 
         if (data.success) {
@@ -336,12 +383,19 @@ export default {
           params: {
             selected: this.selected,
             id: this.editedItem.id,
-          }
+          },
         })
         .catch((error) => {
-          this.updateAlert(true, "No fue posible eliminar el registro.", "fail");
+          this.updateAlert(
+            true,
+            "No fue posible eliminar el registro.",
+            "fail"
+          );
 
-          this.redirectSessionFinished = lib.verifySessionFinished(error.response.status, 419);
+          this.redirectSessionFinished = lib.verifySessionFinished(
+            error.response.status,
+            419
+          );
           this.close();
         });
 
@@ -366,7 +420,11 @@ export default {
             params: this.options,
           })
           .catch((error) => {
-            this.updateAlert(true, "No fue posible obtener los registros.", "fail");
+            this.updateAlert(
+              true,
+              "No fue posible obtener los registros.",
+              "fail"
+            );
           });
 
         this.records = data.records;

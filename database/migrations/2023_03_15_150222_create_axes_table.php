@@ -13,10 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('directions', function (Blueprint $table) {
+        Schema::create('axes', function (Blueprint $table) {
             $table->id();
-            $table->string('direction_name');
+            $table->string('axis_name');
+            $table->foreignId('objective_id')->constrained('objectives');
             $table->foreignId('institution_id')->constrained('institutions');
+            $table->foreignId('user_id')->constrained('users');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('directions');
+        Schema::dropIfExists('axes');
     }
 };

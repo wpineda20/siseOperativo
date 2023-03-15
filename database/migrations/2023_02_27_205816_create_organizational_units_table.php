@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('organizational_units', function (Blueprint $table) {
             $table->id();
             $table->string('ou_name');
-            $table->foreignId('direction_id')->references('id')->on('directions');
+            $table->foreignId('direction_id')->constrained('directions');
             $table->softDeletes();
             $table->timestamps();
         });

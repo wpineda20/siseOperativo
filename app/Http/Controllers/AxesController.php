@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Period;
-use App\Models\Year;
+use App\Models\Institution;
+use App\Models\Objective;
+use App\Models\Axis;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 use Encrypt;
 
-class PeriodsController extends Controller
+class AxesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,7 +24,7 @@ class PeriodsController extends Controller
 
         // Getting all the records
         if (($request->itemsPerPage == -1)) {
-            $itemsPerPage =  Period::count();
+            $itemsPerPage =  Axis::count();
             $skip = 0;
         }
 
@@ -31,15 +33,15 @@ class PeriodsController extends Controller
 
         $search = (isset($request->search)) ? "%$request->search%" : '%%';
 
-        $periods = Period::allDataSearched($search, $sortBy, $sort, $skip, $itemsPerPage);
-        $periods = Encrypt::encryptObject($periods, "id");
+        $axes = Axis::allDataSearched($search, $sortBy, $sort, $skip, $itemsPerPage);
+        $axes = Encrypt::encryptObject($axes, "id");
 
-        $total = Period::counterPagination($search);
+        $total = Axis::counterPagination($search);
 
         return response()->json([
             "status" => 200,
             "message" => "Registros obtenidos correctamente.",
-            "records" => $periods,
+            "records" => $axes,
             "total" => $total,
             "success" => true,
         ]);
@@ -53,14 +55,16 @@ class PeriodsController extends Controller
      */
     public function store(Request $request)
     {
-        $periods = new Period;
+        $axes = new Axis;
 
-        $periods->period_name = $request->period_name;
-        $periods->start_year = $request->start_year;
-        $periods->end_year = $request->end_year;
-        $periods->deleted_at = $request->deleted_at;
+        $axes->axis_name = $request->axis_name;
+        $axes->objective_id = Objective::where('objective_name', $request->objective_name)->first()->id;
+        $axes->institution_id = Institution::where('institution_name', $request->institution_name)->first()->id;
+        $axes->user_id = User::where('user_name', $request->user_name)->first()->id;
+        // dd($axes);
+        $axes->deleted_at = $request->deleted_at;
 
-        $periods->save();
+        $axes->save();
 
         return response()->json([
             "status" => 200,
@@ -72,10 +76,10 @@ class PeriodsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Periods  periods
+     * @param  \App\Models\Axes  axes
      * @return \Illuminate\Http\Response
      */
-    public function show(Period $periods)
+    public function show(Axis $axes)
     {
         //
     }
@@ -84,20 +88,21 @@ class PeriodsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Periods  $periods
+     * @param  \App\Models\Axes  $axes
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
         $data = Encrypt::decryptArray($request->all(), 'id');
 
-        $periods = Period::where('id', $data['id'])->first();
-        $periods->period_name = $request->period_name;
-        $periods->start_year = $request->start_year;
-        $periods->end_year = $request->end_year;
-        $periods->deleted_at = $request->deleted_at;
+        $axes = Axis::where('id', $data['id'])->first();
+        $axes->axis_name = $request->axis_name;
+        $axes->objective_id = Objective::where('objective_name', $request->objective_name)->first()->id;
+        $axes->institution_id = Institution::where('institution_name', $request->institution_name)->first()->id;
+        $axes->user_id = User::where('user_name', $request->user_name)->first()->id;
+        $axes->deleted_at = $request->deleted_at;
 
-        $periods->save();
+        $axes->save();
 
         return response()->json([
             "status" => 200,
@@ -109,7 +114,7 @@ class PeriodsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Periods  $periods
+     * @param  \App\Models\Axes  $axes
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
@@ -120,7 +125,7 @@ class PeriodsController extends Controller
             foreach ($data as $item) {
                 $item = json_decode($item);
 
-                Period::where('id', $id)->delete();
+                Axis::where('id', $id)->delete();
             }
 
             return response()->json([
@@ -132,28 +137,12 @@ class PeriodsController extends Controller
 
         $id = Encrypt::decryptValue($request->id);
 
-        Period::where('id', $id)->delete();
+        Axis::where('id', $id)->delete();
 
         return response()->json([
             "status" => 200,
             "message" => "Registro eliminado correctamente.",
             "success" => true,
         ]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Years  $years
-     * @return \Illuminate\Http\Response
-     */
-    public function periodByYear(Request $request)
-    {
-        $periods = Year::select('years.*', 'periods.period_name')
-            ->join('periods', 'years.period_id', '=', 'periods.id')
-            ->where('years.year_name', $request->year)
-            ->get();
-
-        return response()->json(['message' => 'success', 'periods' => $periods]);
     }
 }

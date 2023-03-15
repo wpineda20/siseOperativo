@@ -11,15 +11,23 @@
       @show-alert="updateAlert($event)"
       class="mb-2"
     />
+    <div class="container pb-4" v-if="actualUser.role == 'Administrador'">
+      <v-row>
+        <v-col align="end" cols="12" md="12" sm="12">
+          <v-btn href="/axes" class="btn-normal" rounded> Siguiente </v-btn>
+        </v-col>
+      </v-row>
+    </div>
     <v-card class="p-3">
       <v-container>
         <v-toolbar flat>
-          <h2 class="mt-4">Años</h2>
+          <h2 class="mt-4">Objetivos</h2>
           <v-spacer></v-spacer>
           <v-row>
             <v-col align="end">
               <v-btn
                 rounded
+                :disabled="loading != false"
                 @click="addRecord()"
                 class="mb-0 mt-3 btn-normal no-uppercase"
                 title="Agregar"
@@ -79,36 +87,27 @@
           <v-container>
             <!-- Form -->
             <v-row class="pt-3">
-              <!-- year_name -->
-              <v-col cols="12" sm="12" md="6">
-                <base-input
-                  label="Año"
-                  v-model="$v.editedItem.year_name.$model"
-                  :validation="$v.editedItem.year_name"
+              <!-- objective_name -->
+              <v-col cols="12" sm="12" md="12">
+                <base-text-area
+                  label="Objectivo"
+                  v-model="$v.editedItem.objective_name.$model"
+                  :validation="$v.editedItem.objective_name"
                   validationTextType="none"
-                  :validationsInput="{
-                    required: true,
-                    minLength: true,
-                  }"
                 />
               </v-col>
-              <!-- year_name -->
+              <!-- objective_name -->
 
-              <!-- period_name -->
-              <v-col cols="12" sm="12" md="6">
-                <base-select-search
-                  label="Periodo"
-                  v-model.trim="$v.editedItem.period_name.$model"
-                  :items="periods"
-                  item="period_name"
-                  :validation="$v.editedItem.period_name"
-                  :validationsInput="{
-                    required: true,
-                    minLength: true,
-                  }"
+              <!-- Users -->
+              <v-col cols="12" sm="12" md="12">
+                <base-input
+                  label="Usuario"
+                  v-model.trim="$v.editedItem.user_name.$model"
+                  :validation="$v.editedItem.user_name"
+                  :disabled="true"
                 />
               </v-col>
-              <!-- period_name -->
+              <!-- Users -->
             </v-row>
             <!-- Form -->
             <v-row>
@@ -166,8 +165,9 @@
 </template>
 
 <script>
-import yearApi from "../apis/yearApi";
-import periodApi from "../apis/periodApi";
+import objectiveApi from "../apis/objectiveApi";
+import userApi from "../apis/userApi";
+
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 
 export default {
@@ -178,22 +178,23 @@ export default {
       dialog: false,
       dialogDelete: false,
       headers: [
-        { text: "AÑO", value: "year_name" },
+        { text: "OBJETIVO", value: "objective_name" },
+        { text: "USUARIO", value: "user_name" },
         { text: "ACCIONES", value: "actions", sortable: false },
       ],
       records: [],
       recordsFiltered: [],
       editedIndex: -1,
-      title: "Year",
+      title: "Objectivo",
       totalItems: 0,
       options: {},
       editedItem: {
-        year_name: "",
-        period_name: "",
+        objective_name: "",
+        user_name: "",
       },
       defaultItem: {
-        year_name: "",
-        period_name: "",
+        objective_name: "",
+        user_name: "",
       },
       selectedTab: 0,
       loading: false,
@@ -203,7 +204,8 @@ export default {
       showAlert: false,
       redirectSessionFinished: false,
       alertTimeOut: 0,
-      periods: [],
+      users: [],
+      actualUser: {},
     };
   },
 
@@ -222,11 +224,11 @@ export default {
   // Validations
   validations: {
     editedItem: {
-      year_name: {
+      objective_name: {
         required,
         minLength: minLength(1),
       },
-      period_name: {
+      user_name: {
         required,
         minLength: minLength(1),
       },
@@ -268,7 +270,7 @@ export default {
 
       let requests = [
         this.getDataFromApi(),
-        periodApi.get(null, {
+        userApi.post("/actualUser", {
           params: { itemsPerPage: -1 },
         }),
       ];
@@ -283,7 +285,7 @@ export default {
       });
 
       if (responses) {
-        this.periods = responses[1].data.records;
+        this.actualUser = responses[1].data.user;
       }
 
       this.loading = false;
@@ -317,7 +319,7 @@ export default {
           this.editedItem
         );
 
-        const { data } = await yearApi
+        const { data } = await objectiveApi
           .put(`/${edited.id}`, edited)
           .catch((error) => {
             this.updateAlert(
@@ -337,7 +339,7 @@ export default {
         }
       } else {
         //Creating user
-        const { data } = await yearApi
+        const { data } = await objectiveApi
           .post(null, this.editedItem)
           .catch((error) => {
             this.updateAlert(true, "No fue posible crear el registro.", "fail");
@@ -359,7 +361,6 @@ export default {
     },
 
     deleteItem(item = null) {
-      console.log(item);
       if (item) {
         this.editedIndex = this.recordsFiltered.indexOf(item);
         this.editedItem = Object.assign({}, item);
@@ -378,7 +379,7 @@ export default {
     },
 
     async deleteItemConfirm() {
-      const { data } = await yearApi
+      const { data } = await objectiveApi
         .delete(null, {
           params: {
             selected: this.selected,
@@ -415,7 +416,7 @@ export default {
       //debounce
       clearTimeout(this.debounce);
       this.debounce = setTimeout(async () => {
-        const { data } = await yearApi
+        const { data } = await objectiveApi
           .get(null, {
             params: this.options,
           })
@@ -439,6 +440,7 @@ export default {
       this.editedIndex = -1;
       this.selectedTab = 0;
       this.editedItem = Object.assign({}, this.defaultItem);
+      this.editedItem.user_name = this.actualUser.user_name;
       this.$v.$reset();
     },
 

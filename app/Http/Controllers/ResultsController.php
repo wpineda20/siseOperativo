@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Period;
+use App\Models\Result;
+use App\Models\Axis;
+use App\Models\User;
+use App\Models\Indicator;
+use App\Models\OrganizationalUnit;
 use App\Models\Year;
+use App\Models\Period;
+use App\Models\Unit;
 
 use Illuminate\Http\Request;
 use Encrypt;
 
-class PeriodsController extends Controller
+class ResultsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,7 +28,7 @@ class PeriodsController extends Controller
 
         // Getting all the records
         if (($request->itemsPerPage == -1)) {
-            $itemsPerPage =  Period::count();
+            $itemsPerPage =  Result::count();
             $skip = 0;
         }
 
@@ -31,15 +37,15 @@ class PeriodsController extends Controller
 
         $search = (isset($request->search)) ? "%$request->search%" : '%%';
 
-        $periods = Period::allDataSearched($search, $sortBy, $sort, $skip, $itemsPerPage);
-        $periods = Encrypt::encryptObject($periods, "id");
+        $results = Result::allDataSearched($search, $sortBy, $sort, $skip, $itemsPerPage);
+        $results = Encrypt::encryptObject($results, "id");
 
-        $total = Period::counterPagination($search);
+        $total = Result::counterPagination($search);
 
         return response()->json([
             "status" => 200,
             "message" => "Registros obtenidos correctamente.",
-            "records" => $periods,
+            "records" => $results,
             "total" => $total,
             "success" => true,
         ]);
@@ -53,14 +59,19 @@ class PeriodsController extends Controller
      */
     public function store(Request $request)
     {
-        $periods = new Period;
+        $results = new Result;
 
-        $periods->period_name = $request->period_name;
-        $periods->start_year = $request->start_year;
-        $periods->end_year = $request->end_year;
-        $periods->deleted_at = $request->deleted_at;
+        $results->result_description = $request->result_description;
+        $results->axis_id = Axis::where('axis_name', $request->axis_name)->first()->id;
+        $results->user_id = User::where('user_name', $request->user_name)->first()->id;
+        $results->indicator_id = Indicator::where('indicator_name', $request->indicator_name)->first()->id;
+        $results->organizational_units_id = OrganizationalUnit::where('ou_name', $request->ou_name)->first()->id;
+        $results->year_id = Year::where('year_name', $request->year_name)->first()->id;
+        $results->period_id = Period::where('period_name', $request->period_name)->first()->id;
+        $results->unit_id = Unit::where('unit_name', $request->unit_name)->first()->id;
+        $results->deleted_at = $request->deleted_at;
 
-        $periods->save();
+        $results->save();
 
         return response()->json([
             "status" => 200,
@@ -72,10 +83,10 @@ class PeriodsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Periods  periods
+     * @param  \App\Models\Results  results
      * @return \Illuminate\Http\Response
      */
-    public function show(Period $periods)
+    public function show(Result $results)
     {
         //
     }
@@ -84,20 +95,25 @@ class PeriodsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Periods  $periods
+     * @param  \App\Models\Results  $results
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
         $data = Encrypt::decryptArray($request->all(), 'id');
 
-        $periods = Period::where('id', $data['id'])->first();
-        $periods->period_name = $request->period_name;
-        $periods->start_year = $request->start_year;
-        $periods->end_year = $request->end_year;
-        $periods->deleted_at = $request->deleted_at;
+        $results = Result::where('id', $data['id'])->first();
+        $results->result_description = $request->result_description;
+        $results->axis_id = Axis::where('axis_name', $request->axis_name)->first()->id;
+        $results->user_id = User::where('user_name', $request->user_name)->first()->id;
+        $results->indicator_id = Indicator::where('indicator_name', $request->indicator_name)->first()->id;
+        $results->organizational_units_id = OrganizationalUnit::where('ou_name', $request->ou_name)->first()->id;
+        $results->year_id = Year::where('year_name', $request->year_name)->first()->id;
+        $results->period_id = Period::where('period_name', $request->period_name)->first()->id;
+        $results->unit_id = Unit::where('unit_name', $request->unit_name)->first()->id;
+        $results->deleted_at = $request->deleted_at;
 
-        $periods->save();
+        $results->save();
 
         return response()->json([
             "status" => 200,
@@ -109,7 +125,7 @@ class PeriodsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Periods  $periods
+     * @param  \App\Models\Results  $results
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
@@ -120,7 +136,7 @@ class PeriodsController extends Controller
             foreach ($data as $item) {
                 $item = json_decode($item);
 
-                Period::where('id', $id)->delete();
+                Result::where('id', $id)->delete();
             }
 
             return response()->json([
@@ -132,28 +148,12 @@ class PeriodsController extends Controller
 
         $id = Encrypt::decryptValue($request->id);
 
-        Period::where('id', $id)->delete();
+        Result::where('id', $id)->delete();
 
         return response()->json([
             "status" => 200,
             "message" => "Registro eliminado correctamente.",
             "success" => true,
         ]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Years  $years
-     * @return \Illuminate\Http\Response
-     */
-    public function periodByYear(Request $request)
-    {
-        $periods = Year::select('years.*', 'periods.period_name')
-            ->join('periods', 'years.period_id', '=', 'periods.id')
-            ->where('years.year_name', $request->year)
-            ->get();
-
-        return response()->json(['message' => 'success', 'periods' => $periods]);
     }
 }

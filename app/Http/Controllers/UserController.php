@@ -161,6 +161,12 @@ class UserController extends Controller
     {
         $user = User::find(auth()->user()->id);
 
+        // Getting the role of the user
+        $role = auth()->user()->getRoleNames()[0];
+        $user->role = $role;
+
+        // $user->id = Encrypt::encryptValue($user, 'id');
+
         return response()->json([
             "status" => "success",
             "message" => "Registro creado correctamente.",
